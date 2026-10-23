@@ -40,3 +40,11 @@
 ### Compression file
 - archive => name, path
 - extract => name, path?
+
+## Version
+```
+[10.23.2026:18.40] peyc 1.0 : Basic feature
+    - added command line like help and version
+    - added file reading
+    - support .yaml or .yml files
+```

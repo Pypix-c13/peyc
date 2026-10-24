@@ -59,3 +59,8 @@
 [10.24.2026:18.53] peyc 3.0 : Folder feature
     - added `mkdir`, `rmdir` keyword
 ```
+
+```
+[10.24.2026:19.43] peyc 4.0 : Some Files feature
+    - added `touch`, `rmfile`, `read` keyword
+```

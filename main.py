@@ -139,6 +139,34 @@ class Folder:
         shutil.rmtree(source)
         return 0
 
+# some
+class File:
+    @staticmethod
+    def touch(args):
+        source = Path(args.get("path", ".")) / args["name"]
+        try:
+            with open(source, "x") as file:
+                file.close()
+        except Exception as e:
+            print(f"{e}")
+        return 0
+
+    @staticmethod
+    def rmfile(args):
+        source = Path(args.get("path", ".")) / args["name"]
+        source.unlink()
+        return 0
+
+    @staticmethod
+    def read(args):
+        source = Path(args.get("path", ".")) / args["name"]
+        try:
+            with open(source, "r") as file:
+                print(file.read())
+        except Exception as e:
+            print(f"{e}")
+        return 0
+
 commands = {
     "move": Basic.move,
     "rename": Basic.rename,
@@ -147,12 +175,15 @@ commands = {
     "exit": Basic.exit,
     "echo": Basic.echo,
     "mkdir": Folder.makedirs,
-    "rmdir": Folder.removedirs
+    "rmdir": Folder.removedirs,
+    "touch": File.touch,
+    "rmfile": File.rmfile,
+    "read": File.read
 }
 
 def execute(config):
     for items in config:
-        if not isinstance(items, dict) or len(items) != 1:
+        if not isinstance(items, dict):
             raise ValueError(f"invalid command format: {items}")
 
         command, args = next(iter(items.items()))

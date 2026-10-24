@@ -5,6 +5,27 @@ import os
 import subprocess
 import yaml
 
+GLOBAL_ENV = {
+    "$HOME": str(Path.home()),
+    "$PWD": os.getcwd(),
+}
+
+def expand(value):
+    if isinstance(value, str):
+        return expand(value)
+
+    if isinstance(value, list):
+        return [expand(item) for item in value]
+
+    if isinstance(value, dict):
+        return {
+            key: expand(item)
+            for key, item in value.items()
+        }
+
+    return value
+
+
 def help_msg():
     print("usage: peyc <option|files>\n")
     print("option:")
@@ -84,18 +105,18 @@ class Files:
 class Basic:
     @staticmethod
     def move(args):
-        shutil.move(Path(args["from"]), Path(args["to"]))
+        shutil.move(expand(args["from"]), expand(args["to"]))
         return 0
     
     @staticmethod
     def rename(args):
-        os.rename(args["from"], args["to"])
+        os.rename(expand(args["from"]), expand(args["to"]))
         return 0
 
     @staticmethod
     def copy(args):
-        source = Path(args["from"])
-        destination = args["to"]
+        source = Path(expand(args["from"]))
+        destination = expand(args["to"])
 
         if source.is_dir():
             shutil.copytree(source, destination)
@@ -110,16 +131,6 @@ class Basic:
         return result.returncode
 
     @staticmethod
-    def exit(args):
-        status = args["status"]
-
-        if status < 0:
-            print("'status' must be non-negative!")
-            return 1
-
-        sys.exit(int(status))
-
-    @staticmethod
     def echo(args):
         print(args["message"])
         return 0
@@ -127,14 +138,14 @@ class Basic:
 class Folder:
     @staticmethod
     def makedirs(args):
-        path = Path(args.get("path", "."))
+        path = Path(expand(args.get("path", ".")))
         source = path / args["name"]
         source.mkdir(parents=True, exist_ok=True)
         return 0
 
     @staticmethod
     def removedirs(args):
-        path = Path(args.get("path", "."))
+        path = Path(expand(args.get("path", ".")))
         source = path / args["name"]
         shutil.rmtree(source)
         return 0
@@ -143,25 +154,25 @@ class Folder:
 class File:
     @staticmethod
     def touch(args):
-        source = Path(args.get("path", ".")) / args["name"]
+        source = Path(expand(args.get("path", "."))) / args["name"]
         try:
-            with open(source, "x") as file:
-                file.close()
+            with open(source, "x", encoding="utf-8"):
+                pass
         except Exception as e:
             print(f"{e}")
         return 0
 
     @staticmethod
     def rmfile(args):
-        source = Path(args.get("path", ".")) / args["name"]
+        source = Path(expand(args.get("path", "."))) / args["name"]
         source.unlink()
         return 0
 
     @staticmethod
     def read(args):
-        source = Path(args.get("path", ".")) / args["name"]
+        source = Path(expand(args.get("path", "."))) / args["name"]
         try:
-            with open(source, "r") as file:
+            with open(source, "r", encoding="utf-8") as file:
                 print(file.read())
         except Exception as e:
             print(f"{e}")
@@ -170,21 +181,22 @@ class File:
 class Directory:
     @staticmethod
     def cd(args):
-        os.chdir(args["path"])
+        os.chdir(expand(args["path"]))
+        GLOBAL_ENV["$PWD"] = os.getcwd()
         print(os.getcwd())
         return 0
 
     @staticmethod
     def ls(args):
-        for i in os.listdir(args["path"]):
+        for i in os.listdir(expand(args["path"])):
             print(i)
+        return 0
 
 commands = {
     "move": Basic.move,
     "rename": Basic.rename,
     "copy": Basic.copy,
     "run": Basic.run,
-    "exit": Basic.exit,
     "echo": Basic.echo,
     "mkdir": Folder.makedirs,
     "rmdir": Folder.removedirs,
@@ -209,6 +221,7 @@ def execute(config):
                 f"arguments for '{command}' must be a mapping!"
             )
 
+        args = expand(args)
         commands[command](args)
 
     return 0

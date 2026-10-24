@@ -10,12 +10,13 @@
 - rename => from, to
 - copy => from, to
 - run => source
-- exit => status
 - echo => message
 
 ### Variable
 - set => name, value
 - $ -> argument access
+- $PWD
+- $HOME
 
 ### Folder
 - mkdir => name, path?
@@ -32,10 +33,6 @@
 ### Directory
 - cd => path
 - ls => path
-- pwd
-
-### Pattern Search
-- search => keyword, from
 
 ### Compression file
 - archive => name, path
@@ -68,4 +65,16 @@
 ```
 [10.24.2026:20.29] peyc 5.0 : Directory feature
     - added `cd`, `ls` keyword
+```
+
+```
+[10.24.2026:21.24] peyc 6.0 : Removing
+    - removed `exit`, `search`
+    - change pwd to $PWD
+    - added $HOME
+```
+
+```
+[10.24.2026:21.50] peyc 7.0 : Placeholder
+    - added $PWD and $HOME to global variable
 ```

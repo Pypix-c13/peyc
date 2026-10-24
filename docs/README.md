@@ -78,3 +78,8 @@
 [10.24.2026:21.50] peyc 7.0 : Placeholder
     - added $PWD and $HOME to global variable
 ```
+
+```
+[10.24.2026:22.01] peyc 8.0 : Bug fixed
+    - fix recursion error
+```

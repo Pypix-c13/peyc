@@ -12,7 +12,12 @@ GLOBAL_ENV = {
 
 def expand(value):
     if isinstance(value, str):
-        return expand(value)
+        GLOBAL_ENV["$PWD"] = os.getcwd()
+
+        for key, variable in GLOBAL_ENV.items():
+            value = value.replace(key, variable)
+
+        return value
 
     if isinstance(value, list):
         return [expand(item) for item in value]

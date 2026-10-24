@@ -167,6 +167,18 @@ class File:
             print(f"{e}")
         return 0
 
+class Directory:
+    @staticmethod
+    def cd(args):
+        os.chdir(args["path"])
+        print(os.getcwd())
+        return 0
+
+    @staticmethod
+    def ls(args):
+        for i in os.listdir(args["path"]):
+            print(i)
+
 commands = {
     "move": Basic.move,
     "rename": Basic.rename,
@@ -178,7 +190,9 @@ commands = {
     "rmdir": Folder.removedirs,
     "touch": File.touch,
     "rmfile": File.rmfile,
-    "read": File.read
+    "read": File.read,
+    "cd": Directory.cd,
+    "ls": Directory.ls
 }
 
 def execute(config):

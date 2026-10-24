@@ -64,3 +64,8 @@
 [10.24.2026:19.43] peyc 4.0 : Some Files feature
     - added `touch`, `rmfile`, `read` keyword
 ```
+
+```
+[10.24.2026:20.29] peyc 5.0 : Directory feature
+    - added `cd`, `ls` keyword
+```

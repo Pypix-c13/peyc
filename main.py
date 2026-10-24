@@ -1,5 +1,8 @@
 import sys
 from pathlib import Path
+import shutil
+import os
+import subprocess
 import yaml
 
 def help_msg():
@@ -10,7 +13,7 @@ def help_msg():
     print("Note: <files> must be use .yaml configuration file!")
 
 class Version:
-    FILES = "CHANGELOG.txt"
+    FILES = "docs/CHANGELOG.txt"
 
     @staticmethod
     def get_latest(files: str):
@@ -78,9 +81,97 @@ class Files:
             print(f"{e}")
             return None
 
+class Basic:
+    @staticmethod
+    def move(args):
+        shutil.move(Path(args["from"]), Path(args["to"]))
+        return 0
+    
+    @staticmethod
+    def rename(args):
+        os.rename(args["from"], args["to"])
+        return 0
+
+    @staticmethod
+    def copy(args):
+        source = Path(args["from"])
+        destination = args["to"]
+
+        if source.is_dir():
+            shutil.copytree(source, destination)
+        else:
+            shutil.copy2(source, destination)
+
+        return 0
+
+    @staticmethod
+    def run(args):
+        result = subprocess.run(args["source"], shell=True)
+        return result.returncode
+
+    @staticmethod
+    def exit(args):
+        status = args["status"]
+
+        if status < 0:
+            print("'status' must be non-negative!")
+            return 1
+
+        sys.exit(int(status))
+
+    @staticmethod
+    def echo(args):
+        print(args["message"])
+        return 0
+
+class Folder:
+    @staticmethod
+    def makedirs(args):
+        path = Path(args.get("path", "."))
+        source = path / args["name"]
+        source.mkdir(parents=True, exist_ok=True)
+        return 0
+
+    @staticmethod
+    def removedirs(args):
+        path = Path(args.get("path", "."))
+        source = path / args["name"]
+        shutil.rmtree(source)
+        return 0
+
+commands = {
+    "move": Basic.move,
+    "rename": Basic.rename,
+    "copy": Basic.copy,
+    "run": Basic.run,
+    "exit": Basic.exit,
+    "echo": Basic.echo,
+    "mkdir": Folder.makedirs,
+    "rmdir": Folder.removedirs
+}
+
+def execute(config):
+    for items in config:
+        if not isinstance(items, dict) or len(items) != 1:
+            raise ValueError(f"invalid command format: {items}")
+
+        command, args = next(iter(items.items()))
+        if command not in commands:
+            raise ValueError(f"Unknown command '{command}'")
+
+        if not isinstance(args, dict):
+            raise ValueError(
+                f"arguments for '{command}' must be a mapping!"
+            )
+
+        commands[command](args)
+
+    return 0
+
 def main():
     if len(sys.argv) < 2:
-        help_msg()
+        print("usage: peyc <option|files>")
+        print("use 'peyc help' for more information")
         return 1
 
     cmd = sys.argv[1]
@@ -98,9 +189,16 @@ def main():
 
     try:
         config = yaml.safe_load(content)
-        return config
+        return execute(config)
+    
     except yaml.YAMLError as e:
         print(f"{e}")
+        return 1
+
+    except (KeyError, TypeError, ValueError, OSError,
+            subprocess.SubprocessError) as e:
+        print(f"{e}")
+        return 1
 
 if __name__ == "__main__":
     main()

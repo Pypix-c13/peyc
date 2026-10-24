@@ -48,3 +48,14 @@
     - added file reading
     - support .yaml or .yml files
 ```
+
+```
+[10.23.2026:22.48] peyc 2.0 : Basic feature
+    - added `move`, `rename`, `copy`, `run`, `exit`, `echo` keyword
+    - fix help message
+```
+
+```
+[10.24.2026:18.53] peyc 3.0 : Folder feature
+    - added `mkdir`, `rmdir` keyword
+```

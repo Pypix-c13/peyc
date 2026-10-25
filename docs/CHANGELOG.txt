@@ -37,3 +37,7 @@
 
 [10.25.2026:14.19] peyc 11.0 : File manipulation feature
     - added `write`, `append`, `override` keyword
+
+[10.25.2026:14.39] peyc 12.0 : Prettier Update
+    - polished README.md structure and formatting
+    - added clean YAML examples for showcase

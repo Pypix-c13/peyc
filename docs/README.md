@@ -35,7 +35,7 @@
 - ls => path
 
 ### Compression file
-- archive => name, path
+- archive => name, path?
 - extract => name, path?
 
 ## Version
@@ -82,4 +82,10 @@
 ```
 [10.24.2026:22.01] peyc 8.0 : Bug fixed
     - fix recursion error
+```
+
+```
+[10.25.2026:13.45] peyc 9.0 : Compression File
+    - added `archive`, `extract` keyword
+    - only work for .zip file
 ```

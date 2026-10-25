@@ -4,6 +4,7 @@ import shutil
 import os
 import subprocess
 import yaml
+import zipfile
 
 GLOBAL_ENV = {
     "$HOME": str(Path.home()),
@@ -197,6 +198,22 @@ class Directory:
             print(i)
         return 0
 
+class Wrapper:
+    @staticmethod
+    def archive(args):
+        root = expand(args.get("path", "."))
+        base = os.path.splitext(args["name"])[0]
+        shutil.make_archive(base, 'zip', root)
+        return 0
+
+    def extract(args):
+        root = expand(args.get("path", "."))
+        base = args["name"]
+
+        with zipfile.ZipFile(base, "r") as zip:
+            zip.extractall(root)
+        return 0
+
 commands = {
     "move": Basic.move,
     "rename": Basic.rename,
@@ -209,7 +226,9 @@ commands = {
     "rmfile": File.rmfile,
     "read": File.read,
     "cd": Directory.cd,
-    "ls": Directory.ls
+    "ls": Directory.ls,
+    "archive": Wrapper.archive,
+    "extract": Wrapper.extract
 }
 
 def execute(config):

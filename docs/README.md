@@ -25,9 +25,9 @@
 ### File
 - touch => name, path?
 - rmfile => name, path?
-- write => name, source, path?
-- append => name, source, path?
-- override => name, source, path?
+- write => source, path
+- append => source, path
+- override => source, path
 - read => name, path?
 
 ### Directory

@@ -175,6 +175,34 @@ class File:
         return 0
 
     @staticmethod
+    def write(args):
+        path = Path(expand(args["path"]))
+        source = expand(args.get("source", ""))
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(source, encoding='utf-8')
+        return 0
+
+    @staticmethod
+    def append(args):
+        path = Path(expand(args["path"]))
+        source = expand(args.get("source", ""))
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as file:
+            file.write(source + "\n")
+        return 0
+
+    @staticmethod
+    def override(args):
+        path = Path(expand(args["path"]))
+        source = expand(args.get("source", ""))
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(source, encoding='utf-8')
+        return 0
+
+    @staticmethod
     def read(args):
         source = Path(expand(args.get("path", "."))) / args["name"]
         try:
@@ -237,7 +265,10 @@ commands = {
     "ls": Directory.ls,
     "archive": Wrapper.archive,
     "extract": Wrapper.extract,
-    "set": Variable.variable
+    "set": Variable.variable,
+    "write": File.write,
+    "append": File.append,
+    "override": File.override
 }
 
 def execute(config):

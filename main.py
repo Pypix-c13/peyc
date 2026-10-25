@@ -214,6 +214,14 @@ class Wrapper:
             zip.extractall(root)
         return 0
 
+class Variable:
+    @staticmethod
+    def variable(args):
+        name = args["name"]
+        key = name if name.startswith("$") else f"${name}"
+        GLOBAL_ENV[key] = expand(args["value"])
+        return 0
+
 commands = {
     "move": Basic.move,
     "rename": Basic.rename,
@@ -228,7 +236,8 @@ commands = {
     "cd": Directory.cd,
     "ls": Directory.ls,
     "archive": Wrapper.archive,
-    "extract": Wrapper.extract
+    "extract": Wrapper.extract,
+    "set": Variable.variable
 }
 
 def execute(config):

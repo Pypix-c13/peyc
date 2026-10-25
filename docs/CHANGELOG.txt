@@ -31,6 +31,9 @@
     - added `archive`, `extract` keyword
     - only work for .zip file
 
-[10.25.2026:14.01] peyc 10 : Variable feature
+[10.25.2026:14.01] peyc 10.0 : Variable feature
     - added `set` keyword
     - support variable access with $
+
+[10.25.2026:14.19] peyc 11.0 : File manipulation feature
+    - added `write`, `append`, `override` keyword

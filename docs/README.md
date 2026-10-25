@@ -89,3 +89,9 @@
     - added `archive`, `extract` keyword
     - only work for .zip file
 ```
+
+```
+[10.25.2026:14.01] peyc 10 : Variable feature
+    - added `set` keyword
+    - support variable access with $
+```

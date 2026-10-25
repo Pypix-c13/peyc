@@ -40,7 +40,8 @@ def help_msg():
     print("Note: <files> must be use .yaml configuration file!")
 
 class Version:
-    FILES = "docs/CHANGELOG.txt"
+    scripts = os.path.dirname(os.path.abspath(__file__))
+    FILES = os.path.join(scripts, "docs/CHANGELOG.txt")
 
     @staticmethod
     def get_latest(files: str):

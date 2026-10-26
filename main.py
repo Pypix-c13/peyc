@@ -6,14 +6,28 @@ import subprocess
 import yaml
 import zipfile
 import uuid
+import re
 
 GLOBAL_ENV = {
-    "$HOME": str(Path.home()),
+    "$HOME": str(Path.home()) if "Path" in globals() else os.path.expanduser("~"),
     "$PWD": os.getcwd(),
     "$UUID": lambda: str(uuid.uuid4())
 }
 
-def expand(value):
+def arg_array(content: str, args: list) -> str:
+    def replacer(match):
+        index = int(match.group(1))
+        if 1 <= index <= len(args):
+            return str(args[index - 1])
+        return match.group(0)
+
+    pattern = r"\$\[(\d+)\]"
+    return re.sub(pattern, replacer, content)
+
+def expand(value, cli_args=None):
+    if cli_args is None:
+        cli_args = []
+
     if isinstance(value, str):
         GLOBAL_ENV["$PWD"] = os.getcwd()
 
@@ -22,24 +36,23 @@ def expand(value):
                 while key in value:
                     value = value.replace(key, str(variable()), 1)
             else:
-                value = value.replace(key, str(variable))
-
+                value = value.replace(key, str(variable))        
+        value = arg_array(value, cli_args)
         return value
 
     if isinstance(value, list):
-        return [expand(item) for item in value]
+        return [expand(item, cli_args) for item in value]
 
     if isinstance(value, dict):
         return {
-            key: expand(item)
+            key: expand(item, cli_args)
             for key, item in value.items()
         }
 
     return value
 
-
 def help_msg():
-    print("usage: peyc <option|files>\n")
+    print("usage: peyc <option|files> [args...]\n")
     print("option:")
     print("    help         show help message")
     print("    version      show newest version\n")
@@ -117,19 +130,19 @@ class Files:
 
 class Basic:
     @staticmethod
-    def move(args):
-        shutil.move(expand(args["from"]), expand(args["to"]))
+    def move(args, cli_args):
+        shutil.move(expand(args["from"], cli_args), expand(args["to"], cli_args))
         return 0
     
     @staticmethod
-    def rename(args):
-        os.rename(expand(args["from"]), expand(args["to"]))
+    def rename(args, cli_args):
+        os.rename(expand(args["from"], cli_args), expand(args["to"], cli_args))
         return 0
 
     @staticmethod
-    def copy(args):
-        source = Path(expand(args["from"]))
-        destination = expand(args["to"])
+    def copy(args, cli_args):
+        source = Path(expand(args["from"], cli_args))
+        destination = expand(args["to"], cli_args)
 
         if source.is_dir():
             shutil.copytree(source, destination)
@@ -139,35 +152,35 @@ class Basic:
         return 0
 
     @staticmethod
-    def run(args):
-        result = subprocess.run(args["source"], shell=True)
+    def run(args, cli_args):
+        cmd_str = expand(args["source"], cli_args)
+        result = subprocess.run(cmd_str, shell=True)
         return result.returncode
 
     @staticmethod
-    def echo(args):
-        print(args["message"])
+    def echo(args, cli_args):
+        print(expand(args["message"], cli_args))
         return 0
 
 class Folder:
     @staticmethod
-    def makedirs(args):
-        path = Path(expand(args.get("path", ".")))
-        source = path / args["name"]
+    def makedirs(args, cli_args):
+        path = Path(expand(args.get("path", "."), cli_args))
+        source = path / expand(args["name"], cli_args)
         source.mkdir(parents=True, exist_ok=True)
         return 0
 
     @staticmethod
-    def removedirs(args):
-        path = Path(expand(args.get("path", ".")))
-        source = path / args["name"]
+    def removedirs(args, cli_args):
+        path = Path(expand(args.get("path", "."), cli_args))
+        source = path / expand(args["name"], cli_args)
         shutil.rmtree(source)
         return 0
 
-# some
 class File:
     @staticmethod
-    def touch(args):
-        source = Path(expand(args.get("path", "."))) / args["name"]
+    def touch(args, cli_args):
+        source = Path(expand(args.get("path", "."), cli_args)) / expand(args["name"], cli_args)
         try:
             with open(source, "x", encoding="utf-8"):
                 pass
@@ -176,24 +189,24 @@ class File:
         return 0
 
     @staticmethod
-    def rmfile(args):
-        source = Path(expand(args.get("path", "."))) / args["name"]
+    def rmfile(args, cli_args):
+        source = Path(expand(args.get("path", "."), cli_args)) / expand(args["name"], cli_args)
         source.unlink()
         return 0
 
     @staticmethod
-    def write(args):
-        path = Path(expand(args["path"]))
-        source = expand(args.get("source", ""))
+    def write(args, cli_args):
+        path = Path(expand(args["path"], cli_args))
+        source = expand(args.get("source", ""), cli_args)
 
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(source, encoding='utf-8')
         return 0
 
     @staticmethod
-    def append(args):
-        path = Path(expand(args["path"]))
-        source = expand(args.get("source", ""))
+    def append(args, cli_args):
+        path = Path(expand(args["path"], cli_args))
+        source = expand(args.get("source", ""), cli_args)
 
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as file:
@@ -201,17 +214,17 @@ class File:
         return 0
 
     @staticmethod
-    def override(args):
-        path = Path(expand(args["path"]))
-        source = expand(args.get("source", ""))
+    def override(args, cli_args):
+        path = Path(expand(args["path"], cli_args))
+        source = expand(args.get("source", ""), cli_args)
 
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(source, encoding='utf-8')
         return 0
 
     @staticmethod
-    def read(args):
-        source = Path(expand(args.get("path", "."))) / args["name"]
+    def read(args, cli_args):
+        source = Path(expand(args.get("path", "."), cli_args)) / expand(args["name"], cli_args)
         try:
             with open(source, "r", encoding="utf-8") as file:
                 print(file.read())
@@ -221,29 +234,30 @@ class File:
 
 class Directory:
     @staticmethod
-    def cd(args):
-        os.chdir(expand(args["path"]))
+    def cd(args, cli_args):
+        os.chdir(expand(args["path"], cli_args))
         GLOBAL_ENV["$PWD"] = os.getcwd()
         print(os.getcwd())
         return 0
 
     @staticmethod
-    def ls(args):
-        for i in os.listdir(expand(args["path"])):
+    def ls(args, cli_args):
+        for i in os.listdir(expand(args["path"], cli_args)):
             print(i)
         return 0
 
 class Wrapper:
     @staticmethod
-    def archive(args):
-        root = expand(args.get("path", "."))
-        base = os.path.splitext(args["name"])[0]
+    def archive(args, cli_args):
+        root = expand(args.get("path", "."), cli_args)
+        base = os.path.splitext(expand(args["name"], cli_args))[0]
         shutil.make_archive(base, 'zip', root)
         return 0
 
-    def extract(args):
-        root = expand(args.get("path", "."))
-        base = args["name"]
+    @staticmethod
+    def extract(args, cli_args):
+        root = expand(args.get("path", "."), cli_args)
+        base = expand(args["name"], cli_args)
 
         with zipfile.ZipFile(base, "r") as zip:
             zip.extractall(root)
@@ -251,10 +265,22 @@ class Wrapper:
 
 class Variable:
     @staticmethod
-    def variable(args):
-        name = args["name"]
+    def variable(args, cli_args):
+        name = expand(args["name"], cli_args)
         key = name if name.startswith("$") else f"${name}"
-        GLOBAL_ENV[key] = expand(args["value"])
+        GLOBAL_ENV[key] = expand(args["value"], cli_args)
+        return 0
+
+class Flow:
+    @staticmethod
+    def loops(args, cli_args):
+        steps = args if isinstance(args, list) else args.get("for", [])
+
+        if not isinstance(steps, list):
+            print("Error: 'do' inside 'for' must be a list of commands!")
+            return 1
+
+        execute(steps, cli_args)
         return 0
 
 commands = {
@@ -275,10 +301,11 @@ commands = {
     "set": Variable.variable,
     "write": File.write,
     "append": File.append,
-    "override": File.override
+    "override": File.override,
+    "for": Flow.loops
 }
 
-def execute(config):
+def execute(config, cli_args):
     for items in config:
         if not isinstance(items, dict):
             raise ValueError(f"invalid command format: {items}")
@@ -287,19 +314,19 @@ def execute(config):
         if command not in commands:
             raise ValueError(f"Unknown command '{command}'")
 
-        if not isinstance(args, dict):
+        if command != "for" and not isinstance(args, dict):
             raise ValueError(
                 f"arguments for '{command}' must be a mapping!"
             )
 
-        args = expand(args)
-        commands[command](args)
+        args = expand(args, cli_args)
+        commands[command](args, cli_args)
 
     return 0
 
 def main():
     if len(sys.argv) < 2:
-        print("usage: peyc <option|files>")
+        print("usage: peyc <option|files> [args...]")
         print("use 'peyc help' for more information")
         return 1
 
@@ -316,9 +343,11 @@ def main():
     if content is None or not content:
         return 1
 
+    cli_args = sys.argv[2:]
+
     try:
         config = yaml.safe_load(content)
-        return execute(config)
+        return execute(config, cli_args)
     
     except yaml.YAMLError as e:
         print(f"{e}")

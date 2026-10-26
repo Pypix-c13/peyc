@@ -105,6 +105,13 @@
     path: "$HOME/Desktop/extracted"
 ```
 
+### Control Flow
+
+```yaml
+- for:
+    # whatever you want to do
+```
+
 ## Version
 
 ```text
@@ -178,4 +185,11 @@
 ```
 [10.26.2026:17.29] peyc 13.0 : UUID Update
     - added $UUID
+```
+
+```
+[10.26.2026:22.21] peyc 14.0 : Control Flow Update
+    - added for keyword
+    - change some code structure
+    - added argument input with $[] use zero-based indexing
 ```

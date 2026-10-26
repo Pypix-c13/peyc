@@ -5,10 +5,12 @@ import os
 import subprocess
 import yaml
 import zipfile
+import uuid
 
 GLOBAL_ENV = {
     "$HOME": str(Path.home()),
     "$PWD": os.getcwd(),
+    "$UUID": lambda: str(uuid.uuid4())
 }
 
 def expand(value):
@@ -16,7 +18,11 @@ def expand(value):
         GLOBAL_ENV["$PWD"] = os.getcwd()
 
         for key, variable in GLOBAL_ENV.items():
-            value = value.replace(key, variable)
+            if callable(variable):
+                while key in value:
+                    value = value.replace(key, str(variable()), 1)
+            else:
+                value = value.replace(key, str(variable))
 
         return value
 

@@ -109,7 +109,10 @@
 
 ```yaml
 - for:
-    # whatever you want to do
+    var: "i"
+    count: 3
+    do:
+        # do whatever you want
 ```
 
 ## Version
@@ -192,4 +195,12 @@
     - added for keyword
     - change some code structure
     - added argument input with $[] use zero-based indexing
+```
+
+```
+[10.27.2026:17.31] peyc 15.0 : For key Update
+    - Added `var`, `count`, and `do` properties to the `for` statement
+    - Added support for array indexing
+    - Changed code structure for better flow
+    - Updated documentation
 ```

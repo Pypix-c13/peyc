@@ -14,14 +14,23 @@ GLOBAL_ENV = {
     "$UUID": lambda: str(uuid.uuid4())
 }
 
-def arg_array(content: str, args: list) -> str:
+def arg_array(content: str, cli_args: list, loop_args: list = None) -> str:
+    if loop_args is None:
+        loop_args = []
+
     def replacer(match):
-        index = int(match.group(1))
-        if 1 <= index <= len(args):
-            return str(args[index - 1])
+        has_dollar = match.group(1)
+        index = int(match.group(2))
+        
+        if has_dollar:
+            if 1 <= index <= len(cli_args):
+                return str(cli_args[index - 1])
+        else:
+            if 1 <= index <= len(loop_args):
+                return str(loop_args[index - 1])
         return match.group(0)
 
-    pattern = r"\$\[(\d+)\]"
+    pattern = r"(\$)?\[(\d+)\]"
     return re.sub(pattern, replacer, content)
 
 def expand(value, cli_args=None):
@@ -274,13 +283,41 @@ class Variable:
 class Flow:
     @staticmethod
     def loops(args, cli_args):
-        steps = args if isinstance(args, list) else args.get("for", [])
+        if not isinstance(args, dict):
+            print("Error: 'for' arguments must be a mapping (dict)!")
+            return 1
+
+        var_name = args.get("var", "i")
+        count = args.get("count")
+        steps = args.get("do", [])
+
+        if isinstance(steps, dict):
+            steps = [steps]
 
         if not isinstance(steps, list):
             print("Error: 'do' inside 'for' must be a list of commands!")
             return 1
 
-        execute(steps, cli_args)
+        try:
+            c = int(expand(count, cli_args))
+        except (TypeError, ValueError):
+            print("Error: 'count' must be a valid integer")
+            return 1
+
+        def replacer(obj, var_name, value):
+            target = f"[{var_name}]"
+            if isinstance(obj, str):
+                return obj.replace(target, str(value))
+            elif isinstance(obj, list):
+                return [replacer(item, var_name, value) for item in obj]
+            elif isinstance(obj, dict):
+                return {k: replacer(v, var_name, value) for k, v in obj.items()}
+            return obj
+
+        for i in range(1, c + 1):
+            process = replacer(steps, var_name, i)
+            execute(process, cli_args)
+
         return 0
 
 commands = {

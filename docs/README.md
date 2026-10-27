@@ -200,7 +200,7 @@
 ```
 [10.27.2026:17.31] peyc 15.0 : For key Update
     - Added `var`, `count`, and `do` properties to the `for` statement
-    - Added support for array indexing
+    - Added support for array indexing use []
     - Changed code structure for better flow
     - Updated documentation
 ```

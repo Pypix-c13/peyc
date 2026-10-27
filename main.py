@@ -7,6 +7,7 @@ import yaml
 import zipfile
 import uuid
 import re
+import concurrent.futures
 
 GLOBAL_ENV = {
     "$HOME": str(Path.home()) if "Path" in globals() else os.path.expanduser("~"),
@@ -320,6 +321,27 @@ class Flow:
 
         return 0
 
+    @staticmethod
+    def sync(args, cli_args):
+        if not isinstance(args, dict):
+            print("Error: 'sync' block must contain command mappings!")
+            return 1
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = []
+            
+            for cmd_name, cmd_val in args.items():
+                single_task = [{cmd_name: cmd_val}]
+                futures.append(executor.submit(execute, single_task, cli_args))
+            
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"Error in sync task: {e}")
+
+        return 0
+
 commands = {
     "move": Basic.move,
     "rename": Basic.rename,
@@ -339,7 +361,8 @@ commands = {
     "write": File.write,
     "append": File.append,
     "override": File.override,
-    "for": Flow.loops
+    "for": Flow.loops,
+    "sync": Flow.sync
 }
 
 def execute(config, cli_args):
@@ -347,17 +370,17 @@ def execute(config, cli_args):
         if not isinstance(items, dict):
             raise ValueError(f"invalid command format: {items}")
 
-        command, args = next(iter(items.items()))
-        if command not in commands:
-            raise ValueError(f"Unknown command '{command}'")
+        for command, args in items.items():
+            if command not in commands:
+                raise ValueError(f"Unknown command '{command}'")
 
-        if command != "for" and not isinstance(args, dict):
-            raise ValueError(
-                f"arguments for '{command}' must be a mapping!"
-            )
+            if command != "for" and not isinstance(args, dict):
+                raise ValueError(
+                    f"arguments for '{command}' must be a mapping!"
+                )
 
-        args = expand(args, cli_args)
-        commands[command](args, cli_args)
+            args = expand(args, cli_args)
+            commands[command](args, cli_args)
 
     return 0
 

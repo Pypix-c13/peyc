@@ -115,6 +115,13 @@
         # do whatever you want
 ```
 
+### Sync
+
+```yaml
+- sync:
+    # do whatever you want
+```
+
 ## Version
 
 ```text
@@ -203,4 +210,11 @@
     - Added support for array indexing use []
     - Changed code structure for better flow
     - Updated documentation
+```
+
+```
+[10.27.2026:18.30] peyc 16.0 : Paralel Update
+    - added sync keyword
+    - added paralel system
+    - changed some code structure
 ```

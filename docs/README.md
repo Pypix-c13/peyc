@@ -229,3 +229,10 @@
     - added $TRUE, $FALSE, $NULL
     - expression support
 ```
+
+```
+[10.28.2026:22.02] peyc 18 : Version Update
+    - changed versioning from `x.y` to `x`
+    - `x` version just for development versioning
+    - release versioning use `x.y.z`
+```

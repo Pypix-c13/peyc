@@ -113,6 +113,10 @@
     count: 3
     do:
         # do whatever you want
+
+- if: "$TRUE"
+    do:
+        # do whatever you want
 ```
 
 ### Sync
@@ -217,4 +221,11 @@
     - added sync keyword
     - added paralel system
     - changed some code structure
+```
+
+```
+[10.28.2026:16.16] peyc 17.0 : Condition Update
+    - added if keyword
+    - added $TRUE, $FALSE, $NULL
+    - expression support
 ```

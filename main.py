@@ -12,7 +12,10 @@ import concurrent.futures
 GLOBAL_ENV = {
     "$HOME": str(Path.home()) if "Path" in globals() else os.path.expanduser("~"),
     "$PWD": os.getcwd(),
-    "$UUID": lambda: str(uuid.uuid4())
+    "$UUID": lambda: str(uuid.uuid4()),
+    "$TRUE": True,
+    "$FALSE": False,
+    "$NULL": None
 }
 
 def arg_array(content: str, cli_args: list, loop_args: list = None) -> str:
@@ -341,6 +344,31 @@ class Flow:
                     print(f"Error in sync task: {e}")
 
         return 0
+    
+    def condition(args, cli_args):
+        if not isinstance(args, dict):
+            print("Error: 'if' block must contain command mappings!")
+            return 1
+
+        condition_expr = args.get("if")
+        steps = args.get("do", [])
+
+        if isinstance(steps, dict):
+            steps = [steps]
+
+        if not isinstance(steps, list):
+            print("Error: 'do' inside 'if' must be a list or mapping of commands!")
+            return 1
+
+        expanded = expand(str(condition_expr), cli_args)
+
+        try:
+            is_true = eval(expanded, {"__builtins__": {}}, GLOBAL_ENV)
+        except Exception as e:
+            print(f"{e}")
+
+        if is_true:
+            execute(steps, cli_args)
 
 commands = {
     "move": Basic.move,
@@ -362,7 +390,8 @@ commands = {
     "append": File.append,
     "override": File.override,
     "for": Flow.loops,
-    "sync": Flow.sync
+    "sync": Flow.sync,
+    "if": Flow.condition
 }
 
 def execute(config, cli_args):

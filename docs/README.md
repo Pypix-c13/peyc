@@ -129,52 +129,52 @@
 ## Version
 
 ```text
-[10.23.2026:18.40] peyc 1.0 : Basic feature
+[10.23.2026:18.40] peyc 1 : Basic feature
     - added command line like help and version
     - added file reading
     - support .yaml or .yml files
 ```
 
 ```text
-[10.23.2026:22.48] peyc 2.0 : Basic feature
+[10.23.2026:22.48] peyc 2 : Basic feature
     - added `move`, `rename`, `copy`, `run`, `exit`, `echo` keyword
     - fix help message
 ```
 
 ```text
-[10.24.2026:18.53] peyc 3.0 : Folder feature
+[10.24.2026:18.53] peyc 3 : Folder feature
     - added `mkdir`, `rmdir` keyword
 ```
 
 ```text
-[10.24.2026:19.43] peyc 4.0 : Some Files feature
+[10.24.2026:19.43] peyc 4 : Some Files feature
     - added `touch`, `rmfile`, `read` keyword
 ```
 
 ```text
-[10.24.2026:20.29] peyc 5.0 : Directory feature
+[10.24.2026:20.29] peyc 5 : Directory feature
     - added `cd`, `ls` keyword
 ```
 
 ```text
-[10.24.2026:21.24] peyc 6.0 : Removing
+[10.24.2026:21.24] peyc 6 : Removing
     - removed `exit`, `search`
     - change pwd to $PWD
     - added $HOME
 ```
 
 ```text
-[10.24.2026:21.50] peyc 7.0 : Placeholder
+[10.24.2026:21.50] peyc 7 : Placeholder
     - added $PWD and $HOME to global variable
 ```
 
 ```text
-[10.24.2026:22.01] peyc 8.0 : Bug fixed
+[10.24.2026:22.01] peyc 8 : Bug fixed
     - fix recursion error
 ```
 
 ```text
-[10.25.2026:13.45] peyc 9.0 : Compression File
+[10.25.2026:13.45] peyc 9 : Compression File
     - added `archive`, `extract` keyword
     - only work for .zip file
 ```
@@ -186,30 +186,30 @@
 ```
 
 ```text
-[10.25.2026:14.19] peyc 11.0 : File manipulation feature
+[10.25.2026:14.19] peyc 11 : File manipulation feature
     - added `write`, `append`, `override` keyword
 ```
 
 ```
-[10.25.2026:14.39] peyc 12.0 : Prettier Update
+[10.25.2026:14.39] peyc 12 : Prettier Update
     - polished README.md structure and formatting
     - added clean YAML examples for showcase
 ```
 
 ```
-[10.26.2026:17.29] peyc 13.0 : UUID Update
+[10.26.2026:17.29] peyc 13 : UUID Update
     - added $UUID
 ```
 
 ```
-[10.26.2026:22.21] peyc 14.0 : Control Flow Update
+[10.26.2026:22.21] peyc 14 : Control Flow Update
     - added for keyword
     - change some code structure
     - added argument input with $[] use zero-based indexing
 ```
 
 ```
-[10.27.2026:17.31] peyc 15.0 : For key Update
+[10.27.2026:17.31] peyc 15 : For key Update
     - Added `var`, `count`, and `do` properties to the `for` statement
     - Added support for array indexing use []
     - Changed code structure for better flow
@@ -217,14 +217,14 @@
 ```
 
 ```
-[10.27.2026:18.30] peyc 16.0 : Paralel Update
+[10.27.2026:18.30] peyc 16 : Paralel Update
     - added sync keyword
     - added paralel system
     - changed some code structure
 ```
 
 ```
-[10.28.2026:16.16] peyc 17.0 : Condition Update
+[10.28.2026:16.16] peyc 17 : Condition Update
     - added if keyword
     - added $TRUE, $FALSE, $NULL
     - expression support

@@ -291,8 +291,8 @@ class Flow:
             print("Error: 'for' arguments must be a mapping (dict)!")
             return 1
 
-        var_name = args.get("var", "i")
-        count = args.get("count")
+        var_name = args.get("var")
+        insane = args.get("in")
         steps = args.get("do", [])
 
         if isinstance(steps, dict):
@@ -303,9 +303,29 @@ class Flow:
             return 1
 
         try:
-            c = int(expand(count, cli_args))
-        except (TypeError, ValueError):
-            print("Error: 'count' must be a valid integer")
+            c = expand(insane, cli_args)
+        except (TypeError, ValueError) as e:
+            print(f"{e}")
+            return 1
+
+        if isinstance(insane, int):
+            backs = range(1, c + 1)
+        elif isinstance(insane, list):
+            backs = c
+        elif isinstance(insane, range):
+            backs = c
+        elif isinstance(insane, str):
+            if ".." in c:
+                try:
+                    start, end = map(int, c.split(".."))
+                    backs = range(start, end + 1)
+                except ValueError:
+                    print(f"{e}")
+                    return 1
+            else:
+                backs = [c]
+        else:
+            print(f"Error: 'in' target must be a list, range, or iterable, got {type(c).__name__}")
             return 1
 
         def replacer(obj, var_name, value):
@@ -318,7 +338,7 @@ class Flow:
                 return {k: replacer(v, var_name, value) for k, v in obj.items()}
             return obj
 
-        for i in range(1, c + 1):
+        for i in backs:
             process = replacer(steps, var_name, i)
             execute(process, cli_args)
 

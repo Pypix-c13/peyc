@@ -110,7 +110,7 @@
 ```yaml
 - for:
     var: "i"
-    count: 3
+    in: "1..5"
     do:
         # do whatever you want
 
@@ -235,4 +235,11 @@
     - changed versioning from `x.y` to `x`
     - `x` version just for development versioning
     - release versioning use `x.y.z`
+```
+
+```
+[10.29.2026:16.36] peyc 19 : Simple For Update
+    - remove `var`, `count` properties
+    - added `var`, `in` properties
+    - added support int, range, list, str data type for `in` properties
 ```

@@ -114,7 +114,8 @@
     do:
         # do whatever you want
 
-- if: "$TRUE"
+- if:
+    condition: "$TRUE"
     do:
         # do whatever you want
 ```
@@ -242,4 +243,9 @@
     - remove `var`, `count` properties
     - added `var`, `in` properties
     - added support int, range, list, str data type for `in` properties
+```
+
+```
+[10.30.2026:15.17] peyc 20 : Flexible If statement Update
+    - added `condition` properties
 ```

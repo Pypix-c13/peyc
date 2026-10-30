@@ -370,7 +370,7 @@ class Flow:
             print("Error: 'if' block must contain command mappings!")
             return 1
 
-        condition_expr = args.get("if")
+        if_stat = args.get("condition")
         steps = args.get("do", [])
 
         if isinstance(steps, dict):
@@ -380,7 +380,7 @@ class Flow:
             print("Error: 'do' inside 'if' must be a list or mapping of commands!")
             return 1
 
-        expanded = expand(str(condition_expr), cli_args)
+        expanded = expand(str(if_stat), cli_args)
 
         try:
             is_true = eval(expanded, {"__builtins__": {}}, GLOBAL_ENV)
